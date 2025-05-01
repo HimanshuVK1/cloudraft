@@ -2,18 +2,34 @@ replicaCount: 1
 
 image:
   repository: ghcr.io/cloudraftio/metrics-app
-  pullPolicy: IfNotPresent
   tag: "1.0"
+  pullPolicy: IfNotPresent
 
 service:
   type: ClusterIP
   port: 8080
 
-secrets:
+secret:
   password: MYPASSWORD
 
-command:
-  - sh
-  - -c
-  - |
-    sed -i 's/random.randint(180, 30)/random.randint(30, 180)/' /app/metrics.py && exec python /app/metrics.py
+resources: {}
+
+# Init Container configuration for updating /app/metrics.py
+initContainers:
+  enabled: true
+  name: update-metrics-file
+  image: busybox:latest
+  imagePullPolicy: IfNotPresent
+  command:
+    - sh
+    - -c
+    - |
+      sed -i 's/random.randint(180, 30)/random.randint(30, 180)/' /app/metrics.py
+  volumeMounts:
+    - name: app-volume
+      mountPath: /app
+
+# Volume configuration for sharing /app directory
+volumes:
+  - name: app-volume
+    emptyDir: {}
