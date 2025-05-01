@@ -1,32 +1,42 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "metrics-app.fullname" . }}
+  name: {{ .Release.Name }}-metrics-app
   labels:
-    {{- include "metrics-app.labels" . | nindent 4 }}
+    app: {{ .Release.Name }}-metrics-app
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      {{- include "metrics-app.selectorLabels" . | nindent 6 }}
+      app: {{ .Release.Name }}-metrics-app
   template:
     metadata:
       labels:
-        {{- include "metrics-app.selectorLabels" . | nindent 8 }}
+        app: {{ .Release.Name }}-metrics-app
     spec:
+      {{- if .Values.initContainers.enabled }}
+      initContainers:
+        - name: {{ .Values.initContainers.name }}
+          image: {{ .Values.initContainers.image }}
+          imagePullPolicy: {{ .Values.initContainers.imagePullPolicy }}
+          command: {{ .Values.initContainers.command | toYaml | nindent 12 }}
+          volumeMounts: {{ .Values.initContainers.volumeMounts | toYaml | nindent 12 }}
+      {{- end }}
       containers:
-      - name: {{ .Chart.Name }}
-        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
-        ports:
-        - containerPort: 8080
-          protocol: TCP
-        env:
-        - name: PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ include "metrics-app.fullname" . }}-secret
-              key: password
-        {{- if .Values.command }}
-        command: {{ .Values.command | toYaml | nindent 12 }}
-        {{- end }}
+        - name: metrics-app
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 8080
+          env:
+            - name: PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-metrics-secret
+                  key: password
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: app-volume
+              mountPath: /app
+      volumes: {{ .Values.volumes | toYaml | nindent 8 }}
