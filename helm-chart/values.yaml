@@ -32,7 +32,7 @@ configMap:
 volumes:
   - name: metrics-py-volume
     configMap:
-      name: {{ .Release.Name }}-metrics-py
+      name: cloudraft-metrics-py  # Avoid Helm templating in values.yaml
 
 # Volume mount configuration for the main container
 volumeMounts:
