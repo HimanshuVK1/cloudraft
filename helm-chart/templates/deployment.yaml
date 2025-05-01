@@ -6,6 +6,8 @@ metadata:
     app: {{ .Release.Name }}-metrics-app
 spec:
   replicas: {{ .Values.replicaCount }}
+  strategy:  # Added rolling update strategy
+    {{- toYaml .Values.strategy | nindent 4 }}
   selector:
     matchLabels:
       app: {{ .Release.Name }}-metrics-app
