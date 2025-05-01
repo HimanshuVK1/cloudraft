@@ -12,6 +12,12 @@ service:
 secret:
   password: MYPASSWORD
 
+strategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxSurge: 1       # Maximum pods created above desired count during update
+    maxUnavailable: 0 # Maximum pods unavailable during update
+
 # Resource requests and limits
 resources:
   requests:
