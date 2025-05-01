@@ -24,7 +24,7 @@ configMap:
     import time
 
     def trigger_background_collection():
-        delay = random.randint(0, 1)
+        delay = random.randint(0, 0)
         time.sleep(delay)
         collector.launch_collector()
 
