@@ -14,22 +14,28 @@ secret:
 
 resources: {}
 
-# Init Container configuration for updating /app/metrics.py
-initContainers:
+# ConfigMap configuration for metrics.py
+configMap:
   enabled: true
-  name: update-metrics-file
-  image: busybox:latest
-  imagePullPolicy: IfNotPresent
-  command:
-    - sh
-    - -c
-    - |
-      sed -i 's/random.randint(180, 30)/random.randint(30, 180)/' /app/metrics.py
-  volumeMounts:
-    - name: app-volume
-      mountPath: /app
+  name: metrics-py
+  fileContent: |
+    import collector
+    import random
+    import time
 
-# Volume configuration for sharing /app directory
+    def trigger_background_collection():
+        delay = random.randint(30, 180)
+        time.sleep(delay)
+        collector.launch_collector()
+
+# Volume configuration for mounting metrics.py
 volumes:
-  - name: app-volume
-    emptyDir: {}
+  - name: metrics-py-volume
+    configMap:
+      name: {{ .Release.Name }}-metrics-py
+
+# Volume mount configuration for the main container
+volumeMounts:
+  - name: metrics-py-volume
+    mountPath: /app/metrics.py
+    subPath: metrics.py
