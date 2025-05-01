@@ -12,6 +12,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: {{ .Release.Name }}-metrics-app
+                name: {{ .Release.Name }}-service
                 port:
                   number: {{ .Values.service.port }}
