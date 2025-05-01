@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cloudraft
+  namespace: argocd
+spec:
+  project: default
+
+  source:
+    repoURL: https://github.com/HimanshuVK1/cloudraft
+    targetRevision: main
+    path: helm-chart
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: cloudraft
+
+  syncPolicy:
+    syncOptions:
+    - CreateNamespace=true
+
+    automated:
+      selfHeal: true
+      prune: true
