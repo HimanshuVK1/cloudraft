@@ -12,7 +12,14 @@ service:
 secret:
   password: MYPASSWORD
 
-resources: {}
+# Resource requests and limits
+resources:
+  requests:
+    cpu: "100m"
+    memory: "128Mi"
+  limits:
+    cpu: "200m"
+    memory: "256Mi"
 
 # ConfigMap configuration for metrics.py
 configMap:
