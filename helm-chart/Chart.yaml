@@ -1,5 +1,5 @@
 apiVersion: v2
-name: metrics-app
+name: cloudraft
 description: A Helm chart for deploying the metrics-app
 version: 0.1.0
 appVersion: "1.0"
