@@ -1,30 +1,32 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-metrics-app
+  name: {{ include "metrics-app.fullname" . }}
   labels:
-    app: {{ .Release.Name }}-metrics-app
+    {{- include "metrics-app.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ .Release.Name }}-metrics-app
+      {{- include "metrics-app.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}-metrics-app
+        {{- include "metrics-app.selectorLabels" . | nindent 8 }}
     spec:
       containers:
-        - name: metrics-app
-          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          ports:
-            - containerPort: 8080
-          env:
-            - name: PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Release.Name }}-metrics-secret
-                  key: password
-          resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+      - name: {{ .Chart.Name }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        env:
+        - name: PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "metrics-app.fullname" . }}-secret
+              key: password
+        {{- if .Values.command }}
+        command: {{ .Values.command | toYaml | nindent 12 }}
+        {{- end }}
