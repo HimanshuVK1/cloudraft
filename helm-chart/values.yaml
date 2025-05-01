@@ -2,14 +2,18 @@ replicaCount: 1
 
 image:
   repository: ghcr.io/cloudraftio/metrics-app
-  tag: "1.0"
   pullPolicy: IfNotPresent
+  tag: "1.0"
 
 service:
   type: ClusterIP
   port: 8080
 
-secret:
+secrets:
   password: MYPASSWORD
 
-resources: {}
+command:
+  - sh
+  - -c
+  - |
+    sed -i 's/random.randint(180, 30)/random.randint(30, 180)/' /app/metrics.py && exec python /app/metrics.py
