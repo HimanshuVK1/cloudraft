@@ -1,8 +1,8 @@
 # CloudRaft Metrics-App Deployment Documentation.
 ## 1) Set up KIND cluster:
-- Created a KIND cluster with kind-config.yaml to expose ports 80 and 443.    
-- Command: kind create cluster --config kind-config.yaml --name kind-cluster
-```
+- Created a KIND cluster with kind-config.yaml to expose ports 80 and 443 and this yaml file is present at /cloudraft/kind/kind-config.yaml path of this repo.       
+``` 
+$ kind create cluster --config kind-config.yaml --name kind-cluster 
 $ kind get clusters
 kind-c1
 
@@ -12,6 +12,7 @@ CoreDNS is running at https://127.0.0.1:64292/api/v1/namespaces/kube-system/serv
 
 To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
 ```
+<br />  <br />  
 ## 2) Set up ingress nginx controller in Kubernetes:
 - Configure ingress nginx controller to expose Cluster services.
 ```
@@ -38,12 +39,14 @@ job.batch/ingress-nginx-admission-patch    Complete   1/1           13s        2
 
 ```
 
+<br />  <br /> 
 ## 3) Created Helm chart:
 - Helm Chart: cloudraft with image ghcr.io/cloudraftio/metrics-app:1.0 for deployment.
 - Pushed to Git repository: https://github.com/HimanshuVK1/cloudraft with path location /cloudraft/helm-chart/ in this repo.
 - Configured port 8080 with ClusterIP service then mapped with ingress nginx config, created secret with PASSWORD=MYPASSWORD and volume mount with evn under the deployment template.
 - Set up an ingress resource to expose the app externally at http://localhost/counter  
-  
+
+<br />  <br /> 
 ## 4) Setup ArgoCD:
 - Deploy ArgoCD under K8s Cluster directly and get login password.
 ```
@@ -107,6 +110,8 @@ replicaset.apps/cloudraft-metrics-app-66df9d7fb9   1         1         1       9
 replicaset.apps/cloudraft-metrics-app-8494f75b97   0         0         0       10h
 replicaset.apps/cloudraft-metrics-app-d464d6c94    0         0         0       13h
 ```
+![image](https://github.com/user-attachments/assets/729db414-8de4-435f-aed8-40508989f7e8)
+
 - After Deployment with argocd via Kubernetes manifest file check status of ArgoCD application deployment with argocd-cli.
 ```
 $ argocd app list
@@ -125,7 +130,7 @@ Source:
   Path:             helm-chart
 SyncWindow:         Sync Allowed
 Sync Policy:        Automated (Prune)
-Sync Status:        Synced to main (55bb886)
+Sync Status:        Synced to main (4a491f2)
 Health Status:      Healthy
 
 GROUP              KIND        NAMESPACE  NAME                      STATUS  HEALTH   HOOK  MESSAGE
@@ -136,6 +141,7 @@ apps               Deployment  cloudraft  cloudraft-metrics-app     Synced  Heal
 networking.k8s.io  Ingress     cloudraft  cloudraft-ingress         Synced  Healthy        ingress.networking.k8s.io/cloudraft-ingress unchanged
 ```
 
+<br />  <br /> 
 ## 5) Check response, validated and find Root Cause Analysis for Metrics-App:
 - Checked http://localhost/counter url by hitting it multiple times.  
   As result output shows on every even request it responding with "Internal Server Error".
@@ -276,37 +282,37 @@ Press CTRL+C to quit
 $ kubectl exec -it cloudraft-metrics-app-66df9d7fb9-24757 -n cloudraft -- sh
 
 2nd Check env variables under pod.
-root@cloudraft-metrics-app-66df9d7fb9-24757:/app# printenv
-KUBERNETES_SERVICE_PORT_HTTPS=443
-PYTHON_SHA256=07ab697474595e06f06647417d3c7fa97ded07afc1a7e4454c5639919b46eaea
+$ kubectl exec -it cloudraft-metrics-app-576bfdf945-rxxw8 -n cloudraft -- sh
+$ printenv
 KUBERNETES_SERVICE_PORT=443
-HOSTNAME=cloudraft-metrics-app-66df9d7fb9-24757
-PYTHON_VERSION=3.12.10
-CLOUDRAFT_SERVICE_PORT=tcp://10.96.152.152:8080
-PWD=/app
-CLOUDRAFT_SERVICE_PORT_8080_TCP=tcp://10.96.152.152:8080
-CLOUDRAFT_SERVICE_PORT_8080_TCP_PORT=8080
-HOME=/root
-LANG=C.UTF-8
-CLOUDRAFT_SERVICE_PORT_8080_TCP_PROTO=tcp
-KUBERNETES_PORT_443_TCP=tcp://10.96.0.1:443
-CLOUDRAFT_SERVICE_PORT_8080_TCP_ADDR=10.96.152.152
-GPG_KEY=7169605F62C751356D054A26A821E680E5FA6305
-PASSWORD=MYPASSWORD                              # Added secret is presnet
-TERM=xterm
-CLOUDRAFT_SERVICE_SERVICE_PORT_HTTP=8080
-SHLVL=1
-KUBERNETES_PORT_443_TCP_PROTO=tcp
-CLOUDRAFT_SERVICE_SERVICE_PORT=8080
-KUBERNETES_PORT_443_TCP_ADDR=10.96.0.1
-CLOUDRAFT_SERVICE_SERVICE_HOST=10.96.152.152
-KUBERNETES_SERVICE_HOST=10.96.0.1
 KUBERNETES_PORT=tcp://10.96.0.1:443
+HOSTNAME=cloudraft-metrics-app-576bfdf945-rxxw8
+HOME=/
+GPG_KEY=7169605F62C751356D054A26A821E680E5FA6305
+CLOUDRAFT_SERVICE_SERVICE_PORT_HTTP=8080
+PYTHON_SHA256=07ab697474595e06f06647417d3c7fa97ded07afc1a7e4454c5639919b46eaea
+CLOUDRAFT_SERVICE_SERVICE_HOST=10.96.152.152
+CLOUDRAFT_SERVICE_PORT_8080_TCP_ADDR=10.96.152.152
+TERM=xterm
+KUBERNETES_PORT_443_TCP_ADDR=10.96.0.1
+CLOUDRAFT_SERVICE_PORT_8080_TCP_PORT=8080
+CLOUDRAFT_SERVICE_PORT_8080_TCP_PROTO=tcp
+PATH=/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 KUBERNETES_PORT_443_TCP_PORT=443
-PATH=/usr/local/bin:
+CLOUDRAFT_SERVICE_SERVICE_PORT=8080
+KUBERNETES_PORT_443_TCP_PROTO=tcp
+CLOUDRAFT_SERVICE_PORT=tcp://10.96.152.152:8080
+LANG=C.UTF-8
+PYTHON_VERSION=3.12.10
+CLOUDRAFT_SERVICE_PORT_8080_TCP=tcp://10.96.152.152:8080
+KUBERNETES_SERVICE_PORT_HTTPS=443
+KUBERNETES_PORT_443_TCP=tcp://10.96.0.1:443
+KUBERNETES_SERVICE_HOST=10.96.0.1
+PWD=/app
+PASSWORD=MYPASSWORD
 
 3rd Check if configmap is injected or not in /app/metrics.py file.
-root@cloudraft-metrics-app-66df9d7fb9-24757:/app# cat metrics.py
+$ cat metrics.py
 import collector
 import random
 import time
@@ -315,12 +321,16 @@ def trigger_background_collection():
     delay = random.randint(0, 0)
     time.sleep(delay)
     collector.launch_collector()
-
 ```
 
+<br />  <br /> 
 ## 6) Best practices are follows: 
-- Used Helm for reproducible deployments.  
-- Automated deployment with ArgoCD for GitOps.
-- Configured ingress for external access.
+### 1st Used Helm for reproducible deployments.
+- Added templese are deployment, service, ingerss-nginx, configmap, secret.
+- For pod added resource allocations to limit their resource usage.
 - Included secrets management for sensitive data and configmap for runtime fixes.
+- For pod security read-only file system, non-root user pod access which will prevent kernal access from pod or container.
+- Added rolling update strategy and liveness & readyness probs for zero downtime deployment and self heal purposes respectivily.
+### 2nd Automated deployment with ArgoCD for GitOps.
+### 3rd Configured ingress for external access.
 
