@@ -1,5 +1,5 @@
 # CloudRaft Metrics-App Deployment Documentation.
-## 1) Set up KIND cluster:
+## 1) Set up KIND cluster with metrics-server to monitor resource utilizations of pods like cpu, memory:
 - Created a KIND cluster with kind-config.yaml to expose ports 80 and 443 and this yaml file is present at /cloudraft/kind/kind-config.yaml path of this repo.       
 ``` 
 $ kind create cluster --config kind-config.yaml --name kind-cluster 
@@ -11,6 +11,19 @@ Kubernetes control plane is running at https://127.0.0.1:64292
 CoreDNS is running at https://127.0.0.1:64292/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
 
 To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
+
+$ kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+$ kubectl get pods -n kube-system
+NAME                                            READY   STATUS    RESTARTS        AGE
+coredns-7db6d8ff4d-9snn5                        1/1     Running   1 (3h53m ago)   26h
+coredns-7db6d8ff4d-p4kgd                        1/1     Running   1 (3h53m ago)   26h
+etcd-kind-c1-control-plane                      1/1     Running   1 (3h53m ago)   26h
+kindnet-689rb                                   1/1     Running   1 (3h53m ago)   26h
+kube-apiserver-kind-c1-control-plane            1/1     Running   2 (3h53m ago)   26h
+kube-controller-manager-kind-c1-control-plane   1/1     Running   2 (3h53m ago)   26h
+kube-proxy-pflzf                                1/1     Running   1 (3h53m ago)   26h
+kube-scheduler-kind-c1-control-plane            1/1     Running   2 (3h53m ago)   26h
+metrics-server-b79d5c976-9c96r                  1/1     Running   0               115s
 ```
 <br />  <br />  
 ## 2) Set up ingress nginx controller in Kubernetes:
