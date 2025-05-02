@@ -15,10 +15,9 @@ secret:
 strategy:
   type: RollingUpdate
   rollingUpdate:
-    maxSurge: 1       # Maximum pods created above desired count during update
-    maxUnavailable: 0 # Maximum pods unavailable during update
+    maxSurge: 1
+    maxUnavailable: 0
 
-# Resource requests and limits
 resources:
   requests:
     cpu: "100m"
@@ -27,7 +26,32 @@ resources:
     cpu: "200m"
     memory: "256Mi"
 
-# ConfigMap configuration for metrics.py
+securityContext:
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 1000  # Ensure this user exists in your container image
+  runAsGroup: 3000  # Ensure this group exists in your container image
+
+livenessProbe:
+  httpGet:
+    path: /
+    port: 8080
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  timeoutSeconds: 1
+  successThreshold: 1
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /
+    port: 8080
+  initialDelaySeconds: 2
+  periodSeconds: 5
+  timeoutSeconds: 1
+  successThreshold: 1
+  failureThreshold: 3
+
 configMap:
   enabled: true
   name: metrics-py
@@ -41,14 +65,16 @@ configMap:
         time.sleep(delay)
         collector.launch_collector()
 
-# Volume configuration for mounting metrics.py
 volumes:
   - name: metrics-py-volume
     configMap:
-      name: cloudraft-metrics-py  # Avoid Helm templating in values.yaml
+      name: cloudraft-metrics-py
+  - name: temp-volume
+    emptyDir: {}
 
-# Volume mount configuration for the main container
 volumeMounts:
   - name: metrics-py-volume
     mountPath: /app/metrics.py
     subPath: metrics.py
+  - name: temp-volume
+    mountPath: /tmp
