@@ -1,6 +1,7 @@
 # CloudRaft Metrics-App Deployment Documentation.
-## 1) Set up KIND cluster with metrics-server to monitor resource utilizations of pods like cpu, memory:
-- Created a KIND cluster with kind-config.yaml to expose ports 80 and 443 and this yaml file is present at /cloudraft/kind/kind-config.yaml path of this repo.       
+## 1) Set up KIND cluster:
+- Created a KIND cluster with kind-config.yaml to expose ports 80 and 443 and this yaml file is present at /cloudraft/kind/kind-config.yaml path of this repo.
+- Deploy metrics-server to monitor resource utilizations of pods like cpu, memory.
 ``` 
 $ kind create cluster --config kind-config.yaml --name kind-cluster 
 $ kind get clusters
