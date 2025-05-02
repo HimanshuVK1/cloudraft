@@ -331,6 +331,6 @@ def trigger_background_collection():
 - Included secrets management for sensitive data and configmap for runtime fixes.
 - For pod security read-only file system, non-root user pod access which will prevent kernal access from pod or container.
 - Added rolling update strategy and liveness & readyness probs for zero downtime deployment and self heal purposes respectivily.
-### 2nd Automated deployment with ArgoCD for GitOps.
-### 3rd Configured ingress for external access.
+### 2nd Automated deployment with ArgoCD for GitOps with Kubernetes argocd manifest file.
+### 3rd Configured ingress for external access for deployments.
 
