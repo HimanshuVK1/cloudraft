@@ -52,18 +52,6 @@ readinessProbe:
   successThreshold: 1
   failureThreshold: 3
 
-configMap:
-  enabled: true
-  name: metrics-py
-  fileContent: |
-    import collector
-    import random
-    import time
-
-    def trigger_background_collection():
-        delay = random.randint(0, 0)
-        time.sleep(delay)
-        collector.launch_collector()
 
 volumes:
   - name: metrics-py-volume
