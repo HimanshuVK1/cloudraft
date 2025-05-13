@@ -54,15 +54,9 @@ readinessProbe:
 
 
 volumes:
-  - name: metrics-py-volume
-    configMap:
-      name: cloudraft-metrics-py
   - name: temp-volume
     emptyDir: {}
 
 volumeMounts:
-  - name: metrics-py-volume
-    mountPath: /app/metrics.py
-    subPath: metrics.py
   - name: temp-volume
     mountPath: /tmp
